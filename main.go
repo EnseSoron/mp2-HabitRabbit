@@ -7,9 +7,9 @@ import (
 
 // Типо вместо базы данных так называемый словарь (имя пользователя:пароль)
 var users = map[string]string{
-	"admin":          "admin",
-	"big boy traher": "qwerty123",
-	"XyJlurAH4EK":    "porno",
+	"admin":       "admin",
+	"user":        "qwerty123",
+	"XyJlurAH4EK": "1234",
 }
 
 func main() {

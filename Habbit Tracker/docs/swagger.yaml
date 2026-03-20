@@ -1,0 +1,487 @@
+basePath: /
+definitions:
+  cmd_server.CreateHabitRequest:
+    properties:
+      description:
+        type: string
+      schedule:
+        items:
+          type: integer
+        type: array
+      schedule_type:
+        description: daily, weekly, monthly, interval, custom
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  cmd_server.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  cmd_server.Habit:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      schedule:
+        description: конфигурация в JSON
+        type: object
+      schedule_text:
+        description: '"Каждый понедельник"'
+        type: string
+      schedule_type:
+        description: daily, weekly, monthly, interval, custom
+        type: string
+      title:
+        type: string
+      user_id:
+        description: привязываем привычку к пользователю
+        type: string
+    type: object
+  cmd_server.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  cmd_server.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/cmd_server.User'
+    type: object
+  cmd_server.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  cmd_server.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@habittracker.com
+    name: Разработчик
+  description: |-
+    API для мобильного приложения трекера привычек
+    Позволяет управлять пользователями, привычками и отслеживать их выполнение
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Habit Tracker API
+  version: 1.0.0
+paths:
+  /habits:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает массив всех привычек авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список привычек пользователя
+          schema:
+            items:
+              $ref: '#/definitions/cmd_server.Habit'
+            type: array
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить список привычек
+      tags:
+      - habits
+    post:
+      consumes:
+      - application/json
+      description: Создает новую привычку для текущего пользователя
+      parameters:
+      - description: Данные привычки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/cmd_server.CreateHabitRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданная привычка
+          schema:
+            $ref: '#/definitions/cmd_server.Habit'
+        "400":
+          description: Неверный формат запроса или невалидные данные
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать привычку
+      tags:
+      - habits
+  /habits/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/cmd_server.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+    get:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/cmd_server.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+    patch:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/cmd_server.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+    put:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/cmd_server.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Проверяет, работает ли сервер и доступна ли база данных
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: статус сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: База данных недоступна
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      summary: Проверка здоровья
+      tags:
+      - system
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя по email и паролю
+      parameters:
+      - description: Учетные данные
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/cmd_server.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный вход, возвращается JWT токен
+          schema:
+            $ref: '#/definitions/cmd_server.LoginResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "401":
+          description: Неверный email или пароль
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      summary: Вход в систему
+      tags:
+      - auth
+  /me:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о пользователе
+          schema:
+            $ref: '#/definitions/cmd_server.User'
+        "401":
+          description: Не авторизован или неверный токен
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить информацию о себе
+      tags:
+      - user
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Создает нового пользователя в системе. Email должен быть уникальным.
+        Пароль должен быть минимум 6 символов.
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/cmd_server.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь успешно создан, возвращается токен
+          schema:
+            $ref: '#/definitions/cmd_server.LoginResponse'
+        "400":
+          description: Неверный формат JSON или невалидные данные
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "409":
+          description: Email уже зарегистрирован
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/cmd_server.ErrorResponse'
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    description: 'Для доступа к защищенным эндпоинтам необходимо добавить заголовок:
+      Authorization: Bearer {ваш-jwt-токен}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

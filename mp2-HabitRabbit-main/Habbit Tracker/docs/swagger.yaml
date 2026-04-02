@@ -1,0 +1,652 @@
+basePath: /
+definitions:
+  main.CheckIn:
+    properties:
+      check_date:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      status:
+        type: boolean
+      updated_at:
+        type: string
+      value:
+        type: number
+    type: object
+  main.CheckInRequest:
+    properties:
+      check_date:
+        type: string
+      notes:
+        type: string
+      status:
+        type: boolean
+      value:
+        type: number
+    type: object
+  main.CreateHabitRequest:
+    type: object
+  main.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  main.Habit:
+    properties:
+      achievements:
+        items:
+          $ref: '#/definitions/main.HabitAchievement'
+        type: array
+      best_streak:
+        type: integer
+      completed_count:
+        type: integer
+      created_at:
+        type: string
+      current_streak:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      last_completed_date:
+        type: string
+      schedule:
+        type: object
+      schedule_text:
+        type: string
+      schedule_type:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
+  main.HabitAchievement:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      earned_at:
+        type: string
+      id:
+        type: string
+      rule_type:
+        type: string
+      rule_value:
+        type: integer
+      title:
+        type: string
+    type: object
+  main.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  main.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/main.User'
+    type: object
+  main.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  main.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@habittracker.com
+    name: Разработчик
+  description: |-
+    API для мобильного приложения трекера привычек
+    Позволяет управлять пользователями, привычками и отслеживать их выполнение
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Habit Tracker API
+  version: 1.0.0
+paths:
+  /habits:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает массив всех привычек авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список привычек пользователя
+          schema:
+            items:
+              $ref: '#/definitions/main.Habit'
+            type: array
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить список привычек
+      tags:
+      - habits
+    post:
+      consumes:
+      - application/json
+      description: Создает новую привычку для текущего пользователя
+      parameters:
+      - description: Данные привычки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateHabitRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданная привычка
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "400":
+          description: Неверный формат запроса или невалидные данные
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать привычку
+      tags:
+      - habits
+  /habits/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+    get:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+    patch:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+    put:
+      consumes:
+      - application/json
+      description: Получение, обновление или удаление привычки по ID
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные для обновления привычки
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о привычке (для GET)
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "204":
+          description: Привычка успешно удалена (для DELETE)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Не авторизован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "403":
+          description: Нет доступа к этой привычке
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Привычка не найдена
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Управление конкретной привычкой
+      tags:
+      - habits
+  /habits/{id}/achievements:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список достижений, полученных по конкретной привычке
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.HabitAchievement'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить достижения привычки
+      tags:
+      - habits
+  /habits/{id}/checkins:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает историю check-in привычки или добавляет/обновляет отметку
+        выполнения по дате
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные выполнения для POST
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/main.CheckInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Обновленная привычка после POST
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: История и отметки выполнения привычки
+      tags:
+      - habits
+    post:
+      consumes:
+      - application/json
+      description: Возвращает историю check-in привычки или добавляет/обновляет отметку
+        выполнения по дате
+      parameters:
+      - description: ID привычки (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные выполнения для POST
+        in: body
+        name: request
+        schema:
+          $ref: '#/definitions/main.CheckInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Обновленная привычка после POST
+          schema:
+            $ref: '#/definitions/main.Habit'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: История и отметки выполнения привычки
+      tags:
+      - habits
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Проверяет, работает ли сервер и доступна ли база данных
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: статус сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: База данных недоступна
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: Проверка здоровья
+      tags:
+      - system
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя по email и паролю
+      parameters:
+      - description: Учетные данные
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный вход, возвращается JWT токен
+          schema:
+            $ref: '#/definitions/main.LoginResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Неверный email или пароль
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: Вход в систему
+      tags:
+      - auth
+  /me:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные авторизованного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о пользователе
+          schema:
+            $ref: '#/definitions/main.User'
+        "401":
+          description: Не авторизован или неверный токен
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получить информацию о себе
+      tags:
+      - user
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Создает нового пользователя в системе. Email должен быть уникальным.
+        Пароль должен быть минимум 6 символов.
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь успешно создан, возвращается токен
+          schema:
+            $ref: '#/definitions/main.LoginResponse'
+        "400":
+          description: Неверный формат JSON или невалидные данные
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "409":
+          description: Email уже зарегистрирован
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    description: 'Для доступа к защищенным эндпоинтам необходимо добавить заголовок:
+      Authorization: Bearer {ваш-jwt-токен}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
